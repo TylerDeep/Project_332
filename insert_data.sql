@@ -11,9 +11,9 @@ VALUES
 INSERT INTO Professor 
 (ssn, first_name, last_name, sex, street, city, prof_state, zip_code, phone_num, title, salary, dept_num) 
 VALUES
-('111-22-33', 'John', 'Carter', 'M', '12 Oak St', 'Springfield', 'IL', '62701', '2175551001', 'Professor', 95000.00, 10),
-('222-33-44', 'Susan', 'Lee', 'F', '45 Maple Ave', 'Springfield', 'IL', '62702', '2175551002', 'Associate Professor', 87000.00, 20),
-('333-44-55', 'Robert', 'Nguyen', 'M', '78 Pine Rd', 'Springfield', 'IL', '62703', '2175551003', 'Assistant Professor', 76000.00, 20);
+('111-22-3345', 'John', 'Carter', 'M', '12 Oak St', 'Springfield', 'IL', '62701', '2175551001', 'Professor', 95000.00, 10),
+('222-33-4476', 'Susan', 'Lee', 'F', '45 Maple Ave', 'Springfield', 'IL', '62702', '2175551002', 'Associate Professor', 87000.00, 20),
+('333-44-5503', 'Robert', 'Nguyen', 'M', '78 Pine Rd', 'Springfield', 'IL', '62703', '2175551003', 'Assistant Professor', 76000.00, 20);
 
 UPDATE Departments
 SET chair_ssn = '111-22-33'
@@ -28,8 +28,8 @@ WHERE dept_num = 20;
 INSERT INTO Professor_degrees 
 (ssn, degree) 
 VALUES
-('111-22-33', 'PhD Computer Science'),
-('222-33-44', 'PhD Mathematics');
+('111-22-3345', 'PhD Computer Science'),
+('222-33-4476', 'PhD Mathematics');
 
 
 
@@ -79,12 +79,12 @@ VALUES
 INSERT INTO Sections 
 (section_num, course_num, ssn, start_time, end_time, classroom, meet_days, seat_num) 
 VALUES
-(1, 101, '111-22-33', '09:00:00', '09:50:00', 101, 'MWF', 30),
-(1, 201, '111-22-33', '10:00:00', '10:50:00', 201, 'MWF', 25),
-(1, 301, '333-44-55', '13:00:00', '14:15:00', 305, 'TR', 20),
-(1, 501, '222-33-44', '08:00:00', '08:50:00', 110, 'MWF', 35),
-(2, 101, '333-44-55', '11:00:00', '12:15:00', 102, 'TR', 30),
-(2, 501, '222-33-44', '09:30:00', '10:45:00', 111, 'TR', 35);
+(1, 101, '111-22-3345', '09:00:00', '09:50:00', 101, 'MWF', 30),
+(1, 201, '111-22-3345', '10:00:00', '10:50:00', 201, 'MWF', 25),
+(1, 301, '333-44-5503', '13:00:00', '14:15:00', 305, 'TR', 20),
+(1, 501, '222-33-4476', '08:00:00', '08:50:00', 110, 'MWF', 35),
+(2, 101, '333-44-5503', '11:00:00', '12:15:00', 102, 'TR', 30),
+(2, 501, '222-33-4476', '09:30:00', '10:45:00', 111, 'TR', 35);
 
 
 
