@@ -33,14 +33,14 @@ function show_sql_error($conn, $sql) {
 
         $sql = "
             SELECT 
-                course.title,
-                sections.classroom,
-                sections.meet_days,
-                sections.start_time,
-                sections.end_time
-            FROM sections
-            JOIN course ON sections.course_num = course.course_num
-            WHERE sections.ssn = ?
+                Course.title,
+                Sections.classroom,
+                Sections.meet_days,
+                Sections.start_time,
+                Sections.end_time
+            FROM Sections
+            JOIN course ON Sections.course_num = Course.course_num
+            WHERE Sections.ssn = ?
         ";
 
         $stmt = $conn->prepare($sql);
@@ -109,8 +109,8 @@ function show_sql_error($conn, $sql) {
             SELECT 
                 grade,
                 COUNT(*) AS student_count
-            FROM enrollment_records
-            WHERE course_num = ? AND section_num = ?
+            FROM Enrollment_records
+            WHERE Course_num = ? AND Aection_num = ?
             GROUP BY grade
             ORDER BY grade
         ";
@@ -168,24 +168,24 @@ function show_sql_error($conn, $sql) {
 
         $sql = "
             SELECT 
-                sections.section_num,
-                sections.classroom,
-                sections.meet_days,
-                sections.start_time,
-                sections.end_time,
-                COUNT(enrollment_records.cwid) AS enrolled_students
+                Sections.section_num,
+                Sections.classroom,
+                Sections.meet_days,
+                Sections.start_time,
+                Sections.end_time,
+                COUNT(Enrollment_records.cwid) AS enrolled_students
             FROM sections
-            LEFT JOIN enrollment_records
-                ON sections.course_num = enrollment_records.course_num
-                AND sections.section_num = enrollment_records.section_num
-            WHERE sections.course_num = ?
+            LEFT JOIN Enrollment_records
+                ON Sections.course_num = Enrollment_records.course_num
+                AND Sections.section_num = Enrollment_records.section_num
+            WHERE Sections.course_num = ?
             GROUP BY 
-                sections.section_num,
-                sections.classroom,
-                sections.meet_days,
-                sections.start_time,
-                sections.end_time
-            ORDER BY sections.section_num
+                Sections.section_num,
+                Sections.classroom,
+                Sections.meet_days,
+                Sections.start_time,
+                Sections.end_time
+            ORDER BY Sections.section_num
         ";
 
         $stmt = $conn->prepare($sql);
@@ -249,14 +249,14 @@ function show_sql_error($conn, $sql) {
 
         $sql = "
             SELECT 
-                course.course_num,
-                course.title,
-                enrollment_records.section_num,
-                enrollment_records.grade
-            FROM enrollment_records
-            JOIN course ON enrollment_records.course_num = course.course_num
-            WHERE enrollment_records.cwid = ?
-            ORDER BY course.course_num
+                Course.course_num,
+                Course.title,
+                Enrollment_records.section_num,
+                Enrollment_records.grade
+            FROM Enrollment_records
+            JOIN course ON Enrollment_records.course_num = course.course_num
+            WHERE Enrollment_records.cwid = ?
+            ORDER BY Course.course_num
         ";
 
         $stmt = $conn->prepare($sql);
