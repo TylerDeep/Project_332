@@ -39,7 +39,7 @@ function show_sql_error($conn, $sql) {
                 Sections.start_time,
                 Sections.end_time
             FROM Sections
-            JOIN course ON Sections.course_num = Course.course_num
+            JOIN Course ON Sections.course_num = Course.course_num
             WHERE Sections.ssn = ?
         ";
 
@@ -110,7 +110,7 @@ function show_sql_error($conn, $sql) {
                 grade,
                 COUNT(*) AS student_count
             FROM Enrollment_records
-            WHERE Course_num = ? AND Aection_num = ?
+            WHERE course_num = ? AND section_num = ?
             GROUP BY grade
             ORDER BY grade
         ";
@@ -174,7 +174,7 @@ function show_sql_error($conn, $sql) {
                 Sections.start_time,
                 Sections.end_time,
                 COUNT(Enrollment_records.cwid) AS enrolled_students
-            FROM sections
+            FROM Sections
             LEFT JOIN Enrollment_records
                 ON Sections.course_num = Enrollment_records.course_num
                 AND Sections.section_num = Enrollment_records.section_num
@@ -254,7 +254,7 @@ function show_sql_error($conn, $sql) {
                 Enrollment_records.section_num,
                 Enrollment_records.grade
             FROM Enrollment_records
-            JOIN course ON Enrollment_records.course_num = course.course_num
+            JOIN Course ON Enrollment_records.course_num = Course.course_num
             WHERE Enrollment_records.cwid = ?
             ORDER BY Course.course_num
         ";
