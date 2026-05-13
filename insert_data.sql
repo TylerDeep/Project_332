@@ -16,11 +16,11 @@ VALUES
 ('333-44-5503', 'Robert', 'Nguyen', 'M', '78 Pine Rd', 'Springfield', 'IL', '62703', '2175551003', 'Assistant Professor', 76000.00, 20);
 
 UPDATE Departments
-SET chair_ssn = '111-22-33'
+SET chair_ssn = '111-22-3345'
 WHERE dept_num = 10;
 
 UPDATE Departments
-SET chair_ssn = '222-33-44'
+SET chair_ssn = '222-33-4476'
 WHERE dept_num = 20;
 
 
