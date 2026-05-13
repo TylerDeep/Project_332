@@ -1,5 +1,10 @@
 <?php
 require_once "db.php";
+
+function show_sql_error($conn, $sql) {
+    echo "<p style='color:red; font-weight:bold;'>SQL Error: " . htmlspecialchars($conn->error) . "</p>";
+    echo "<pre>" . htmlspecialchars($sql) . "</pre>";
+}
 ?>
 
 <!DOCTYPE html>
@@ -14,9 +19,11 @@ require_once "db.php";
 
 <section>
     <h2>Professor: View Classes</h2>
+    <p>Requirement: Given the social security number of a professor, list the titles, classrooms, meeting days, and times of their classes.</p>
+
     <form method="POST">
         <label>Professor SSN:</label>
-        <input type="text" name="professor_ssn" required>
+        <input type="text" name="professor_ssn" placeholder="Example: 111-22-3345" required>
         <button type="submit" name="professor_classes">Search</button>
     </form>
 
@@ -26,55 +33,69 @@ require_once "db.php";
 
         $sql = "
             SELECT 
-                c.title,
-                s.classroom,
-                s.meet_days,
-                s.start_time,
-                s.end_time
-            FROM Sections s
-            JOIN Courses c ON s.course_num = c.course_num
-            WHERE s.ssn = ?
+                course.title,
+                sections.classroom,
+                sections.meet_days,
+                sections.start_time,
+                sections.end_time
+            FROM sections
+            JOIN course ON sections.course_num = course.course_num
+            WHERE sections.ssn = ?
         ";
 
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("s", $ssn);
-        $stmt->execute();
-        $result = $stmt->get_result();
 
-        echo "<h3>Results</h3>";
+        if (!$stmt) {
+            show_sql_error($conn, $sql);
+        } else {
+            $stmt->bind_param("s", $ssn);
+            $stmt->execute();
+            $result = $stmt->get_result();
 
-        if ($result->num_rows > 0) {
-            echo "<table>";
-            echo "<tr><th>Course Title</th><th>Classroom</th><th>Meeting Days</th><th>Start Time</th><th>End Time</th></tr>";
+            echo "<h3>Results</h3>";
 
-            while ($row = $result->fetch_assoc()) {
-                echo "<tr>";
-                echo "<td>" . htmlspecialchars($row["title"]) . "</td>";
-                echo "<td>" . htmlspecialchars($row["classroom"]) . "</td>";
-                echo "<td>" . htmlspecialchars($row["meet_days"]) . "</td>";
-                echo "<td>" . htmlspecialchars($row["start_time"]) . "</td>";
-                echo "<td>" . htmlspecialchars($row["end_time"]) . "</td>";
-                echo "</tr>";
+            if ($result->num_rows > 0) {
+                echo "<table>";
+                echo "<tr>
+                        <th>Course Title</th>
+                        <th>Classroom</th>
+                        <th>Meeting Days</th>
+                        <th>Start Time</th>
+                        <th>End Time</th>
+                      </tr>";
+
+                while ($row = $result->fetch_assoc()) {
+                    echo "<tr>";
+                    echo "<td>" . htmlspecialchars($row["title"]) . "</td>";
+                    echo "<td>" . htmlspecialchars($row["classroom"]) . "</td>";
+                    echo "<td>" . htmlspecialchars($row["meet_days"]) . "</td>";
+                    echo "<td>" . htmlspecialchars($row["start_time"]) . "</td>";
+                    echo "<td>" . htmlspecialchars($row["end_time"]) . "</td>";
+                    echo "</tr>";
+                }
+
+                echo "</table>";
+            } else {
+                echo "<p>No classes found for this professor.</p>";
             }
 
-            echo "</table>";
-        } else {
-            echo "<p>No classes found for this professor.</p>";
+            $stmt->close();
         }
-
-        $stmt->close();
     }
     ?>
 </section>
 
+
 <section>
     <h2>Professor: Grade Count by Course Section</h2>
+    <p>Requirement: Given a course number and section number, count how many students received each distinct grade.</p>
+
     <form method="POST">
         <label>Course Number:</label>
-        <input type="text" name="grade_course_num" required>
+        <input type="text" name="grade_course_num" placeholder="Example: 101" required>
 
         <label>Section Number:</label>
-        <input type="text" name="grade_section_num" required>
+        <input type="text" name="grade_section_num" placeholder="Example: 1" required>
 
         <button type="submit" name="grade_count">Search</button>
     </form>
@@ -88,45 +109,56 @@ require_once "db.php";
             SELECT 
                 grade,
                 COUNT(*) AS student_count
-            FROM Enrollment_records
+            FROM enrollment_records
             WHERE course_num = ? AND section_num = ?
             GROUP BY grade
             ORDER BY grade
         ";
 
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ss", $course_num, $section_num);
-        $stmt->execute();
-        $result = $stmt->get_result();
 
-        echo "<h3>Results</h3>";
+        if (!$stmt) {
+            show_sql_error($conn, $sql);
+        } else {
+            $stmt->bind_param("ss", $course_num, $section_num);
+            $stmt->execute();
+            $result = $stmt->get_result();
 
-        if ($result->num_rows > 0) {
-            echo "<table>";
-            echo "<tr><th>Grade</th><th>Number of Students</th></tr>";
+            echo "<h3>Results</h3>";
 
-            while ($row = $result->fetch_assoc()) {
-                echo "<tr>";
-                echo "<td>" . htmlspecialchars($row["grade"]) . "</td>";
-                echo "<td>" . htmlspecialchars($row["student_count"]) . "</td>";
-                echo "</tr>";
+            if ($result->num_rows > 0) {
+                echo "<table>";
+                echo "<tr>
+                        <th>Grade</th>
+                        <th>Number of Students</th>
+                      </tr>";
+
+                while ($row = $result->fetch_assoc()) {
+                    echo "<tr>";
+                    echo "<td>" . htmlspecialchars($row["grade"]) . "</td>";
+                    echo "<td>" . htmlspecialchars($row["student_count"]) . "</td>";
+                    echo "</tr>";
+                }
+
+                echo "</table>";
+            } else {
+                echo "<p>No enrollment records found for this course section.</p>";
             }
 
-            echo "</table>";
-        } else {
-            echo "<p>No enrollment records found for this course section.</p>";
+            $stmt->close();
         }
-
-        $stmt->close();
     }
     ?>
 </section>
 
+
 <section>
     <h2>Student: View Course Sections</h2>
+    <p>Requirement: Given a course number, list the sections, classrooms, meeting days, times, and number of enrolled students.</p>
+
     <form method="POST">
         <label>Course Number:</label>
-        <input type="text" name="section_course_num" required>
+        <input type="text" name="section_course_num" placeholder="Example: 101" required>
         <button type="submit" name="course_sections">Search</button>
     </form>
 
@@ -136,62 +168,78 @@ require_once "db.php";
 
         $sql = "
             SELECT 
-                s.section_num,
-                s.classroom,
-                s.meet_days,
-                s.start_time,
-                s.end_time,
-                COUNT(e.cwid) AS enrolled_students
-            FROM Sections s
-            LEFT JOIN Enrollment_records e
-                ON s.course_num = e.course_num
-                AND s.section_num = e.section_num
-            WHERE s.course_num = ?
+                sections.section_num,
+                sections.classroom,
+                sections.meet_days,
+                sections.start_time,
+                sections.end_time,
+                COUNT(enrollment_records.cwid) AS enrolled_students
+            FROM sections
+            LEFT JOIN enrollment_records
+                ON sections.course_num = enrollment_records.course_num
+                AND sections.section_num = enrollment_records.section_num
+            WHERE sections.course_num = ?
             GROUP BY 
-                s.section_num,
-                s.classroom,
-                s.meet_days,
-                s.start_time,
-                s.end_time
+                sections.section_num,
+                sections.classroom,
+                sections.meet_days,
+                sections.start_time,
+                sections.end_time
+            ORDER BY sections.section_num
         ";
 
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("s", $course_num);
-        $stmt->execute();
-        $result = $stmt->get_result();
 
-        echo "<h3>Results</h3>";
+        if (!$stmt) {
+            show_sql_error($conn, $sql);
+        } else {
+            $stmt->bind_param("s", $course_num);
+            $stmt->execute();
+            $result = $stmt->get_result();
 
-        if ($result->num_rows > 0) {
-            echo "<table>";
-            echo "<tr><th>Section</th><th>Classroom</th><th>Meeting Days</th><th>Start Time</th><th>End Time</th><th>Enrolled Students</th></tr>";
+            echo "<h3>Results</h3>";
 
-            while ($row = $result->fetch_assoc()) {
-                echo "<tr>";
-                echo "<td>" . htmlspecialchars($row["section_num"]) . "</td>";
-                echo "<td>" . htmlspecialchars($row["classroom"]) . "</td>";
-                echo "<td>" . htmlspecialchars($row["meet_days"]) . "</td>";
-                echo "<td>" . htmlspecialchars($row["start_time"]) . "</td>";
-                echo "<td>" . htmlspecialchars($row["end_time"]) . "</td>";
-                echo "<td>" . htmlspecialchars($row["enrolled_students"]) . "</td>";
-                echo "</tr>";
+            if ($result->num_rows > 0) {
+                echo "<table>";
+                echo "<tr>
+                        <th>Section</th>
+                        <th>Classroom</th>
+                        <th>Meeting Days</th>
+                        <th>Start Time</th>
+                        <th>End Time</th>
+                        <th>Enrolled Students</th>
+                      </tr>";
+
+                while ($row = $result->fetch_assoc()) {
+                    echo "<tr>";
+                    echo "<td>" . htmlspecialchars($row["section_num"]) . "</td>";
+                    echo "<td>" . htmlspecialchars($row["classroom"]) . "</td>";
+                    echo "<td>" . htmlspecialchars($row["meet_days"]) . "</td>";
+                    echo "<td>" . htmlspecialchars($row["start_time"]) . "</td>";
+                    echo "<td>" . htmlspecialchars($row["end_time"]) . "</td>";
+                    echo "<td>" . htmlspecialchars($row["enrolled_students"]) . "</td>";
+                    echo "</tr>";
+                }
+
+                echo "</table>";
+            } else {
+                echo "<p>No sections found for this course.</p>";
             }
 
-            echo "</table>";
-        } else {
-            echo "<p>No sections found for this course.</p>";
+            $stmt->close();
         }
-
-        $stmt->close();
     }
     ?>
 </section>
 
+
 <section>
     <h2>Student: View Courses and Grades</h2>
+    <p>Requirement: Given a student CWID, list all courses the student took and their grades.</p>
+
     <form method="POST">
         <label>Student CWID:</label>
-        <input type="text" name="cwid" required>
+        <input type="text" name="cwid" placeholder="Example: 1001" required>
         <button type="submit" name="student_courses">Search</button>
     </form>
 
@@ -201,44 +249,55 @@ require_once "db.php";
 
         $sql = "
             SELECT 
-                c.course_num,
-                c.title,
-                e.section_num,
-                e.grade
-            FROM Enrollment_records e
-            JOIN Courses c ON e.course_num = c.course_num
-            WHERE e.cwid = ?
-            ORDER BY c.course_num
+                course.course_num,
+                course.title,
+                enrollment_records.section_num,
+                enrollment_records.grade
+            FROM enrollment_records
+            JOIN course ON enrollment_records.course_num = course.course_num
+            WHERE enrollment_records.cwid = ?
+            ORDER BY course.course_num
         ";
 
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("s", $cwid);
-        $stmt->execute();
-        $result = $stmt->get_result();
 
-        echo "<h3>Results</h3>";
+        if (!$stmt) {
+            show_sql_error($conn, $sql);
+        } else {
+            $stmt->bind_param("s", $cwid);
+            $stmt->execute();
+            $result = $stmt->get_result();
 
-        if ($result->num_rows > 0) {
-            echo "<table>";
-            echo "<tr><th>Course Number</th><th>Course Title</th><th>Section</th><th>Grade</th></tr>";
+            echo "<h3>Results</h3>";
 
-            while ($row = $result->fetch_assoc()) {
-                echo "<tr>";
-                echo "<td>" . htmlspecialchars($row["course_num"]) . "</td>";
-                echo "<td>" . htmlspecialchars($row["title"]) . "</td>";
-                echo "<td>" . htmlspecialchars($row["section_num"]) . "</td>";
-                echo "<td>" . htmlspecialchars($row["grade"]) . "</td>";
-                echo "</tr>";
+            if ($result->num_rows > 0) {
+                echo "<table>";
+                echo "<tr>
+                        <th>Course Number</th>
+                        <th>Course Title</th>
+                        <th>Section</th>
+                        <th>Grade</th>
+                      </tr>";
+
+                while ($row = $result->fetch_assoc()) {
+                    echo "<tr>";
+                    echo "<td>" . htmlspecialchars($row["course_num"]) . "</td>";
+                    echo "<td>" . htmlspecialchars($row["title"]) . "</td>";
+                    echo "<td>" . htmlspecialchars($row["section_num"]) . "</td>";
+                    echo "<td>" . htmlspecialchars($row["grade"]) . "</td>";
+                    echo "</tr>";
+                }
+
+                echo "</table>";
+            } else {
+                echo "<p>No courses found for this student.</p>";
             }
 
-            echo "</table>";
-        } else {
-            echo "<p>No courses found for this student.</p>";
+            $stmt->close();
         }
-
-        $stmt->close();
     }
     ?>
+
 </section>
 
 </body>
