@@ -33,7 +33,7 @@ require_once "db.php";
                 s.end_time
             FROM Sections s
             JOIN Courses c ON s.course_num = c.course_num
-            WHERE s.professor_ssn = ?
+            WHERE s.ssn = ?
         ";
 
         $stmt = $conn->prepare($sql);
@@ -141,7 +141,7 @@ require_once "db.php";
                 s.meet_days,
                 s.start_time,
                 s.end_time,
-                COUNT(e.student_id) AS enrolled_students
+                COUNT(e.cwid) AS enrolled_students
             FROM Sections s
             LEFT JOIN Enrollment_records e
                 ON s.course_num = e.course_num
@@ -191,13 +191,13 @@ require_once "db.php";
     <h2>Student: View Courses and Grades</h2>
     <form method="POST">
         <label>Student CWID:</label>
-        <input type="text" name="student_id" required>
+        <input type="text" name="cwid" required>
         <button type="submit" name="student_courses">Search</button>
     </form>
 
     <?php
     if (isset($_POST["student_courses"])) {
-        $student_id = $_POST["student_id"];
+        $cwid = $_POST["cwid"];
 
         $sql = "
             SELECT 
@@ -207,12 +207,12 @@ require_once "db.php";
                 e.grade
             FROM Enrollment_records e
             JOIN Courses c ON e.course_num = c.course_num
-            WHERE e.student_id = ?
+            WHERE e.cwid = ?
             ORDER BY c.course_num
         ";
 
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("s", $student_id);
+        $stmt->bind_param("s", $cwid);
         $stmt->execute();
         $result = $stmt->get_result();
 
